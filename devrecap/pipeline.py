@@ -149,9 +149,18 @@ def collect_photos(settings: Settings, activity: DayActivity, insights: AIInsigh
                 log.exception("search_stock falhou")
                 activity.notes.append(f"Banco de fotos ({provider}): erro inesperado (veja o log).")
 
-    # 3) Imagem gerada por IA — vaga desde a saída do Gemini.
-    #    `insights.photo_prompt` continua sendo produzido pela análise do dia e
-    #    fica disponível para quem assumir esta etapa (ver TODO no topo do módulo).
+    # 3) Não existe mais etapa de geração de imagem por IA.
+    #
+    #    A escolha da imagem migrou para dentro da análise do dia: o Claude Code
+    #    busca no banco do Freepik (servidor MCP `magnific`) e devolve o que
+    #    escolheu em `insights.photo_keywords` / `photo_prompt`, com a
+    #    justificativa em post-linkedin.json.
+    #
+    #    A ordem de preferência é deliberada: imagem real do próprio projeto >
+    #    banco de imagens > geração por IA. Ilustração de IA no feed do LinkedIn
+    #    é reconhecível e desvaloriza o post — por isso é último caso, não o
+    #    caminho padrão. A regra está escrita no Passo 5 de
+    #    <projeto LinkedIn>/scripts/prompt-diario.md.
     return photos
 
 
