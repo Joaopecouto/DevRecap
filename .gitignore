@@ -1,0 +1,19 @@
+# Build
+dist/
+build/
+*.spec
+__pycache__/
+*.pyc
+
+# Ambiente
+venv/
+.venv/
+
+# Credenciais e dados de runtime vivem em %APPDATA%\DevRecap, nunca aqui
+config.json
+*.env
+*.key
+
+# Sistema
+Thumbs.db
+desktop.ini

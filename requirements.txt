@@ -1,0 +1,16 @@
+# DevRecap — dependências de runtime
+# (Tkinter já vem na instalação padrão do Python no Windows)
+
+pywebview>=5.0           # janela da UI (HTML/CSS via WebView2 no Windows)
+pystray>=0.19.5          # ícone na bandeja do sistema (system tray)
+Pillow>=10.0.0           # imagens do ícone e miniaturas das fotos
+requests>=2.31.0         # GitHub API, banco de fotos (Pexels/Unsplash)
+google-genai>=0.3.0      # SDK oficial do Google Gemini (texto + imagem)
+APScheduler>=3.10.0      # agendamento diário (18:00)
+python-dateutil>=2.8.2   # parsing de datas
+
+# --- Opcional (notificações nativas mais ricas no Windows) ---
+# windows-toasts>=1.1.0
+
+# --- Apenas para empacotar em .exe (dev) ---
+# pyinstaller>=6.0.0
