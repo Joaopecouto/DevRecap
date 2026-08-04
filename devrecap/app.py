@@ -68,8 +68,12 @@ class Api:
     def test_stock(self, provider: str = None, api_key: str = None) -> dict[str, Any]:
         return self._c.test_stock(provider, api_key)
 
+    def test_claude(self) -> dict[str, Any]:
+        return self._c.test_claude()
+
     def test_gemini(self, api_key: str = None, model: str = None) -> dict[str, Any]:
-        return self._c.test_gemini(api_key, model)
+        """Compatibilidade: a UI antiga ainda pode chamar isto."""
+        return self._c.test_claude()
 
     def pick_folder(self) -> str:
         return self._c.pick_folder()
@@ -354,26 +358,32 @@ class AppController:
             log.exception("test_stock falhou")
             return {"ok": False, "message": f"Erro inesperado: {e}"}
 
-    def test_gemini(self, api_key, model) -> dict[str, Any]:
-        """Testa a chave do Gemini AGORA (uma geração mínima)."""
-        key = api_key if api_key is not None else self.settings.gemini_api_key
-        if not (key or "").strip():
-            return {"ok": False, "message": "Sem API key do Gemini."}
+    def test_claude(self, *_ignorado) -> dict[str, Any]:
+        """Verifica se a análise do dia tem como rodar.
+
+        Substitui o antigo test_gemini. Não há chave a testar: a análise usa a
+        instalação local do Claude Code. O que pode faltar é o CLI no PATH ou o
+        arquivo de instrução no projeto LinkedIn."""
         try:
-            from .ai.gemini import available
+            from .ai import claude_code as cc
 
-            if not available():
-                return {"ok": False, "message": "SDK google-genai indisponível."}
-            from google import genai
-
-            m = model or self.settings.gemini_text_model or "gemini-2.5-flash"
-            client = genai.Client(api_key=key)
-            client.models.generate_content(model=m, contents="responda só: ok")
-            return {"ok": True, "message": f"Gemini OK ({m})."}
+            exe = cc._cli()
+            if not exe:
+                return {
+                    "ok": False,
+                    "message": "CLI 'claude' não encontrado no PATH. "
+                               "Instale com: npm i -g @anthropic-ai/claude-code",
+                }
+            if not cc.PROMPT_FILE.exists():
+                return {
+                    "ok": False,
+                    "message": f"Instrução não encontrada: {cc.PROMPT_FILE}",
+                }
+            if not cc.disponivel():
+                return {"ok": False, "message": f"CLI encontrado ({exe}) mas não respondeu."}
+            return {"ok": True, "message": f"Claude Code OK — {exe}"}
         except Exception as e:
-            from .ai.gemini import _friendly_ai_error
-
-            return {"ok": False, "message": _friendly_ai_error(e)}
+            return {"ok": False, "message": f"Erro ao verificar: {e}"}
 
     # ------------------------------------------------------------------ #
     # Worker do recap

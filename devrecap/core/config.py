@@ -1,6 +1,6 @@
 """Configuração persistente do DevRecap (%APPDATA%/DevRecap/config.json).
 
-Guarda: pastas monitoradas, credenciais (GitHub, Gemini, banco de fotos),
+Guarda: pastas monitoradas, credenciais (GitHub, banco de fotos),
 horário do resumo, fontes de foto, idioma/tom do post e flags de comportamento.
 
 Segredos ficam em texto neste JSON (app local de uso pessoal). O arquivo está
@@ -14,7 +14,9 @@ from typing import Any
 
 from .paths import config_path
 
-# Defaults dos modelos Gemini — CONFIRMADOS pelo workflow de pesquisa antes do release.
+# A análise do dia é feita pelo Claude Code (ai/claude_code.py), que usa a
+# instalação local do CLI — não há chave nem modelo para configurar aqui.
+# Os defaults abaixo ficaram só para não quebrar config.json já existentes.
 # (mantidos configuráveis: o João pode trocar na tela de Configurações)
 DEFAULT_TEXT_MODEL = "gemini-2.5-flash"
 DEFAULT_IMAGE_MODEL = "gemini-2.5-flash-image"
@@ -34,10 +36,12 @@ class Settings:
     github_token: str = ""
     github_include_private: bool = True
 
-    # ---- Gemini ----
+    # ---- Legado do Gemini ----
+    # Mantidos só para que config.json antigos continuem carregando sem erro.
+    # Nada no pipeline lê estes campos desde a migração para o Claude Code.
     gemini_api_key: str = ""
     gemini_text_model: str = DEFAULT_TEXT_MODEL
-    gemini_image_enabled: bool = True
+    gemini_image_enabled: bool = False
     gemini_image_model: str = DEFAULT_IMAGE_MODEL
 
     # ---- Texto / post ----
@@ -110,8 +114,17 @@ class Settings:
         problems: list[str] = []
         if not self.folders and not self.github_enabled:
             problems.append("Nenhuma pasta marcada e GitHub desativado — não há o que analisar.")
-        if not self.gemini_api_key:
-            problems.append("Falta a API key do Gemini (resumo e post dependem dela).")
+        # A análise depende do CLI do Claude Code estar instalado, não de chave.
+        try:
+            from ..ai.claude_code import disponivel as _claude_ok
+
+            if not _claude_ok():
+                problems.append(
+                    "Claude Code indisponível (CLI 'claude' fora do PATH ou "
+                    "prompt-diario.md ausente) — sem resumo do dia nem post."
+                )
+        except Exception:
+            problems.append("Não foi possível checar o Claude Code.")
         if self.github_enabled and (not self.github_username or not self.github_token):
             problems.append("GitHub ativado mas faltam usuário e/ou token.")
         if "stock" in self.photo_sources and not self.stock_api_key:

@@ -79,6 +79,7 @@ class ClaudeResult:
     status: str = ""          # "candidato" | "dia-sem-material" | ""
     md_path: str = ""
     json_path: str = ""
+    insights: dict | None = None   # payload de AIInsights (substitui o do Gemini)
     error: str = ""
 
 
@@ -161,7 +162,7 @@ def gerar_post(pasta_relatorio: str | Path) -> ClaudeResult:
     origem = PROJETO_LINKEDIN / "posts" / "diario" / pasta.name
     md = pasta / "post-linkedin.md"
     js = pasta / "post-linkedin.json"
-    for nome in ("post-linkedin.md", "post-linkedin.json"):
+    for nome in ("post-linkedin.md", "post-linkedin.json", "insights.json"):
         src = origem / nome
         if src.exists():
             try:
@@ -186,5 +187,15 @@ def gerar_post(pasta_relatorio: str | Path) -> ClaudeResult:
         except Exception:
             logger.warning("post-linkedin.json inválido em %s", pasta)
 
+    insights = None
+    ins_file = pasta / "insights.json"
+    if ins_file.exists():
+        try:
+            insights = json.loads(ins_file.read_text(encoding="utf-8"))
+        except Exception:
+            logger.warning("insights.json inválido em %s", pasta)
+
     logger.info("lapidação concluída: %s (status=%s)", md, status or "?")
-    return ClaudeResult(True, status=status, md_path=str(md), json_path=str(js))
+    return ClaudeResult(
+        True, status=status, md_path=str(md), json_path=str(js), insights=insights
+    )

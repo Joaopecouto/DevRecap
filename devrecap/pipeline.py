@@ -88,41 +88,21 @@ def collect_activity(settings: Settings, day: str, cb: ProgressCb = None) -> Day
     return build_day_activity(day, local_repos, github_repos, notes)
 
 
-def _build_gemini(settings: Settings):
-    """Cria um GeminiClient se houver chave e SDK; senão None (+ motivo)."""
-    if not settings.gemini_api_key:
-        return None, "Sem API key do Gemini — resumo e post não foram gerados."
-    try:
-        from .ai.gemini import GeminiClient, available
-
-        if not available():
-            return None, "SDK google-genai não está instalado."
-        return GeminiClient(
-            settings.gemini_api_key,
-            settings.gemini_text_model,
-            settings.gemini_image_model,
-        ), None
-    except Exception as e:
-        log.exception("falha ao criar GeminiClient")
-        return None, f"Falha ao iniciar Gemini: {e}"
-
-
-def generate_insights(settings: Settings, activity: DayActivity, gemini, cb: ProgressCb = None) -> AIInsights:
-    if gemini is None:
-        return AIInsights(error="Gemini indisponível (sem chave ou SDK).")
-    _emit(cb, "Gerando resumo e post com o Gemini…")
-    return gemini.generate_insights(
-        activity,
-        language=settings.language,
-        tone=settings.linkedin_tone,
-        style_reference=_read_style_reference(settings),
-        post_length=settings.post_length,
-    )
+# A análise do dia saiu do Gemini e passou para o Claude Code em modo headless
+# (`ai/claude_code.py`), chamado de dentro de generate_recap/regenerate_report.
+# Não existe mais um passo "gerar insights" isolado: quem produz o AIInsights é
+# a mesma execução que escreve o post, porque as duas coisas dependem da mesma
+# leitura dos commits.
 
 
 def collect_photos(settings: Settings, activity: DayActivity, insights: AIInsights,
-                   gemini, cb: ProgressCb = None) -> list[PhotoSuggestion]:
-    """Reúne sugestões de foto conforme settings.photo_sources."""
+                   _reservado=None, cb: ProgressCb = None) -> list[PhotoSuggestion]:
+    """Reúne sugestões de foto conforme settings.photo_sources.
+
+    As palavras-chave vêm de `insights.photo_keywords`, hoje produzidas pela
+    análise do Claude Code. O 4º parâmetro era o cliente Gemini e está reservado
+    para o provedor de geração de imagem que assumir a etapa 3.
+    """
     photos: list[PhotoSuggestion] = []
     sources = settings.photo_sources or []
     keywords = insights.photo_keywords or _fallback_keywords(activity)
@@ -169,18 +149,9 @@ def collect_photos(settings: Settings, activity: DayActivity, insights: AIInsigh
                 log.exception("search_stock falhou")
                 activity.notes.append(f"Banco de fotos ({provider}): erro inesperado (veja o log).")
 
-    # 3) Imagem gerada por IA (opcional)
-    if "gemini" in sources and gemini is not None and settings.gemini_image_enabled and insights.photo_prompt:
-        _emit(cb, "Gerando imagem com o Gemini…")
-        try:
-            from .media.gemini_image import suggest_generated_image
-
-            g = suggest_generated_image(gemini, insights.photo_prompt, out_dir)
-            if g:
-                photos.append(g)
-        except Exception:
-            log.exception("suggest_generated_image falhou")
-
+    # 3) Imagem gerada por IA — vaga desde a saída do Gemini.
+    #    `insights.photo_prompt` continua sendo produzido pela análise do dia e
+    #    fica disponível para quem assumir esta etapa (ver TODO no topo do módulo).
     return photos
 
 
@@ -212,20 +183,42 @@ def regenerate_report(settings: Settings, full_activity: DayActivity,
     activity = filter_activity(full_activity, selected)
     _emit(cb, f"Regenerando com foco em {len(selected)} projeto(s)…")
 
-    gemini, gem_note = _build_gemini(settings)
-    if gem_note:
-        activity.notes.append(gem_note)
-
-    insights = generate_insights(settings, activity, gemini, cb)
-    photos = collect_photos(settings, activity, insights, gemini, cb)
-
     report = DailyReport(
         day=day,
         generated_at=datetime.now().astimezone().isoformat(timespec="seconds"),
         activity=activity,
-        insights=insights,
-        photos=photos,
+        insights=AIInsights(),
+        photos=[],
     )
+
+    # Mesmo desenho do generate_recap: grava o preliminar (a etapa de análise lê
+    # o report.json do disco), roda o Claude Code, depois coleta as fotos com as
+    # palavras-chave que ele devolveu.
+    folder = None
+    try:
+        folder = storage.save_report(report)
+    except Exception:
+        log.exception("falha ao salvar relatório preliminar (regenerar)")
+
+    if folder:
+        try:
+            from .ai import claude_code
+
+            if claude_code.disponivel():
+                res = claude_code.gerar_post(folder)
+                if res.ok and res.insights:
+                    report.insights = AIInsights.from_dict(res.insights)
+                elif not res.ok:
+                    report.insights.error = res.error[:300]
+                    activity.notes.append(f"Análise do dia falhou: {res.error[:200]}")
+            else:
+                report.insights.error = "Claude Code indisponível — sem análise do dia."
+        except Exception as e:
+            log.exception("etapa de análise falhou (regenerar)")
+            report.insights.error = f"erro interno: {e}"
+
+    report.photos = collect_photos(settings, activity, report.insights, None, cb)
+
     try:
         storage.save_report(report)
     except Exception:
@@ -240,51 +233,66 @@ def generate_recap(settings: Settings, day: Optional[str] = None, cb: ProgressCb
 
     activity = collect_activity(settings, day, cb)
 
-    gemini, gem_note = _build_gemini(settings)
-    if gem_note:
-        activity.notes.append(gem_note)
-
-    insights = generate_insights(settings, activity, gemini, cb)
-    photos = collect_photos(settings, activity, insights, gemini, cb)
-
+    # Salva um relatório preliminar (só a atividade do git) porque a etapa
+    # seguinte LÊ o report.json do disco. É a inversão em relação ao desenho
+    # antigo, em que a IA rodava antes de qualquer gravação.
     report = DailyReport(
         day=day,
         generated_at=datetime.now().astimezone().isoformat(timespec="seconds"),
         activity=activity,
-        insights=insights,
-        photos=photos,
+        insights=AIInsights(),
+        photos=[],
     )
 
     folder = None
     try:
         folder = storage.save_report(report)
-        _emit(cb, f"Recap salvo em {folder}")
     except Exception:
-        log.exception("falha ao salvar relatório")
-        _emit(cb, "Recap gerado (falha ao salvar em disco).")
+        log.exception("falha ao salvar relatório preliminar")
+        _emit(cb, "Falha ao salvar em disco.")
 
-    # Etapa de lapidação: entrega o relatório ao Claude Code, que lê os commits
-    # completos, consulta as skills de marketing e grava um candidato a post na
-    # mesma pasta. Roda DEPOIS do save porque depende do report.json em disco.
+    # Análise do dia + post: Claude Code em modo headless, no lugar do Gemini.
     #
-    # É a etapa mais lenta do pipeline (agêntica, minutos). Nunca derruba o
-    # recap: qualquer falha aqui vira nota, e o relatório do dia continua válido.
+    # Não é uma chamada de LLM — é um agente que lê os commits, abre diffs quando
+    # precisa e consulta as skills de marketing e os subagentes do projeto
+    # LinkedIn. Por isso leva minutos, e por isso a qualidade não depende de
+    # caber tudo num prompt.
+    #
+    # Se falhar, o relatório continua válido com a atividade do git; o que se
+    # perde é a narrativa e o post. Nunca derruba o recap.
     if folder:
         try:
             from .ai import claude_code
 
             if claude_code.disponivel():
-                _emit(cb, "Gerando post do LinkedIn (Claude Code)…")
+                _emit(cb, "Analisando o dia e escrevendo o post…")
                 res = claude_code.gerar_post(folder)
                 if res.ok:
+                    if res.insights:
+                        report.insights = AIInsights.from_dict(res.insights)
                     _emit(cb, f"Post do dia: {res.status or 'gerado'}")
                 else:
-                    activity.notes.append(f"Post do LinkedIn não gerado: {res.error}")
-                    _emit(cb, "Post do LinkedIn falhou (recap segue válido).")
+                    report.insights.error = res.error[:300]
+                    activity.notes.append(f"Análise do dia falhou: {res.error[:200]}")
+                    _emit(cb, "Análise falhou (atividade do git preservada).")
             else:
-                log.info("Claude Code indisponível; etapa de lapidação pulada")
-        except Exception:
-            log.exception("etapa de lapidação falhou")
-            activity.notes.append("Post do LinkedIn não gerado (erro interno).")
+                msg = "Claude Code indisponível — sem análise do dia."
+                report.insights.error = msg
+                activity.notes.append(msg)
+                _emit(cb, msg)
+        except Exception as e:
+            log.exception("etapa de análise falhou")
+            report.insights.error = f"erro interno: {e}"
+            activity.notes.append("Análise do dia não gerada (erro interno).")
+
+    # As fotos dependem das palavras-chave que a etapa acima produziu.
+    report.photos = collect_photos(settings, activity, report.insights, None, cb)
+
+    try:
+        folder = storage.save_report(report)
+        _emit(cb, f"Recap salvo em {folder}")
+    except Exception:
+        log.exception("falha ao salvar relatório final")
+        _emit(cb, "Recap gerado (falha ao salvar em disco).")
 
     return report
