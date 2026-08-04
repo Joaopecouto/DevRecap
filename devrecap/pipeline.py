@@ -255,11 +255,36 @@ def generate_recap(settings: Settings, day: Optional[str] = None, cb: ProgressCb
         photos=photos,
     )
 
+    folder = None
     try:
         folder = storage.save_report(report)
         _emit(cb, f"Recap salvo em {folder}")
     except Exception:
         log.exception("falha ao salvar relatório")
         _emit(cb, "Recap gerado (falha ao salvar em disco).")
+
+    # Etapa de lapidação: entrega o relatório ao Claude Code, que lê os commits
+    # completos, consulta as skills de marketing e grava um candidato a post na
+    # mesma pasta. Roda DEPOIS do save porque depende do report.json em disco.
+    #
+    # É a etapa mais lenta do pipeline (agêntica, minutos). Nunca derruba o
+    # recap: qualquer falha aqui vira nota, e o relatório do dia continua válido.
+    if folder:
+        try:
+            from .ai import claude_code
+
+            if claude_code.disponivel():
+                _emit(cb, "Gerando post do LinkedIn (Claude Code)…")
+                res = claude_code.gerar_post(folder)
+                if res.ok:
+                    _emit(cb, f"Post do dia: {res.status or 'gerado'}")
+                else:
+                    activity.notes.append(f"Post do LinkedIn não gerado: {res.error}")
+                    _emit(cb, "Post do LinkedIn falhou (recap segue válido).")
+            else:
+                log.info("Claude Code indisponível; etapa de lapidação pulada")
+        except Exception:
+            log.exception("etapa de lapidação falhou")
+            activity.notes.append("Post do LinkedIn não gerado (erro interno).")
 
     return report
