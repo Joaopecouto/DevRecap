@@ -219,7 +219,6 @@ def regenerate_report(settings: Settings, full_activity: DayActivity,
                     report.insights = AIInsights.from_dict(res.insights)
                 elif not res.ok:
                     report.insights.error = res.error[:300]
-                    activity.notes.append(f"Análise do dia falhou: {res.error[:200]}")
             else:
                 report.insights.error = "Claude Code indisponível — sem análise do dia."
         except Exception as e:
@@ -281,18 +280,19 @@ def generate_recap(settings: Settings, day: Optional[str] = None, cb: ProgressCb
                         report.insights = AIInsights.from_dict(res.insights)
                     _emit(cb, f"Post do dia: {res.status or 'gerado'}")
                 else:
+                    # Só em insights.error. A UI (app.js) já injeta esse campo
+                    # na lista de avisos; escrever também em activity.notes fazia
+                    # a mesma falha aparecer duas vezes na tela, com cortes
+                    # diferentes, parecendo dois problemas.
                     report.insights.error = res.error[:300]
-                    activity.notes.append(f"Análise do dia falhou: {res.error[:200]}")
                     _emit(cb, "Análise falhou (atividade do git preservada).")
             else:
-                msg = "Claude Code indisponível — sem análise do dia."
+                msg = "Claude Code indisponível: sem análise do dia."
                 report.insights.error = msg
-                activity.notes.append(msg)
                 _emit(cb, msg)
         except Exception as e:
             log.exception("etapa de análise falhou")
             report.insights.error = f"erro interno: {e}"
-            activity.notes.append("Análise do dia não gerada (erro interno).")
 
     # As fotos dependem das palavras-chave que a etapa acima produziu.
     report.photos = collect_photos(settings, activity, report.insights, None, cb)

@@ -127,7 +127,18 @@ def gerar_post(pasta_relatorio: str | Path) -> ClaudeResult:
     # argumento multilinha quebra na primeira quebra de linha. Medido: a execução
     # recebia só a primeira linha do arquivo de instrução (o título em markdown)
     # e abortava, sem erro aparente. Por stdin o texto chega inteiro.
-    cmd = [exe, "-p"]
+    # --permission-mode acceptEdits
+    #
+    # Sem isto a execução produz o candidato e não consegue gravá-lo. O
+    # `--add-dir` concede ESCOPO DE ACESSO, não autorização de escrita: a
+    # gravação continua pedindo aprovação, e em modo headless não há ninguém
+    # para aprovar. O sintoma é enganoso — o agente relata "candidato
+    # produzido, gravação bloqueada" e deixa tudo no scratchpad dele.
+    #
+    # `acceptEdits` aceita automaticamente edição de arquivo no diretório de
+    # trabalho e nos passados em --add-dir. É o escopo mínimo que resolve.
+    # Não use `bypassPermissions`: libera tudo, inclusive Bash arbitrário.
+    cmd = [exe, "-p", "--permission-mode", "acceptEdits"]
     for d in _dirs_extras(pasta):
         cmd += ["--add-dir", d]
 
