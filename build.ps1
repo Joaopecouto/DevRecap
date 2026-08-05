@@ -1,4 +1,6 @@
 # Empacota o DevRecap num executável único com PyInstaller.
+# A análise do dia usa o CLI do Claude Code, que é externo — não há SDK de IA
+# para coletar aqui desde a saída do Gemini.
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
 $venv = Join-Path $root ".venv"
@@ -23,8 +25,6 @@ Write-Host "Empacotando DevRecap.exe ..."
     --hidden-import clr `
     --hidden-import webview.platforms.edgechromium `
     --collect-all clr_loader `
-    --collect-all google.genai `
-    --copy-metadata google-genai `
     --collect-all apscheduler `
     --collect-all tzlocal `
     --distpath (Join-Path $root "dist") `

@@ -17,3 +17,6 @@ config.json
 # Sistema
 Thumbs.db
 desktop.ini
+
+# Ambiente virtual
+.venv/

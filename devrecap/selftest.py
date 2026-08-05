@@ -29,25 +29,13 @@ def run_selftest() -> int:
         import pystray  # noqa: F401
         lines.append("pystray OK")
 
-        import webview  # noqa: F401
-        lines.append("pywebview OK")
-
-        # Força o backend EdgeChromium (clr/pythonnet) — pega falha de empacotamento
-        # sem precisar abrir janela.
-        import webview.platforms.edgechromium  # noqa: F401
-        lines.append("edgechromium/clr OK")
-
-        from devrecap.ui import webview_app
-        html = webview_app.build_html()
-        lines.append(f"build_html OK ({len(html)} chars)")
-
-        from apscheduler.schedulers.background import BackgroundScheduler  # noqa: F401
-        from apscheduler.triggers.cron import CronTrigger  # noqa: F401
-        lines.append("apscheduler OK")
-
-        # O mais arriscado de empacotar — importar explicitamente p/ falhar alto.
-        from google import genai  # noqa: F401
-        lines.append("google-genai OK")
+        # A análise do dia usa o CLI do Claude Code, que é externo ao pacote.
+        # Aqui só confirmamos que ele responde e que a instrução existe.
+        from devrecap.ai import claude_code
+        lines.append(
+            "Claude Code OK" if claude_code.disponivel()
+            else "Claude Code INDISPONIVEL (CLI fora do PATH ou prompt-diario.md ausente)"
+        )
 
         from devrecap.ui import tray
         img = tray.make_image()

@@ -5,7 +5,8 @@ pywebview>=5.0           # janela da UI (HTML/CSS via WebView2 no Windows)
 pystray>=0.19.5          # ícone na bandeja do sistema (system tray)
 Pillow>=10.0.0           # imagens do ícone e miniaturas das fotos
 requests>=2.31.0         # GitHub API, banco de fotos (Pexels/Unsplash)
-google-genai>=0.3.0      # SDK oficial do Google Gemini (texto + imagem)
+# A análise do dia usa o CLI do Claude Code (ai/claude_code.py), que é externo
+# e não entra aqui — não há SDK de IA nas dependências.
 APScheduler>=3.10.0      # agendamento diário (18:00)
 python-dateutil>=2.8.2   # parsing de datas
 
