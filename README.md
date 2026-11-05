@@ -53,18 +53,18 @@ Cada pasta marcada é varrida até uma profundidade configurável (padrão 3), s
 
 <p align="center"><img src="./assets/screens/config-pastas.png" alt="Configurações: pastas varridas, profundidade da busca e filtro por e-mail de autor." width="92%"><br><sub>Configurações: pastas varridas, profundidade da busca e filtro por e-mail de autor.</sub></p>
 
-- Roda `git log --no-merges` entre 00:00 e 23:59 do dia local, usando a data de commit para casar com o filtro de janela.
-- Pede o corpo completo da mensagem (`%B`), porque é nele que vive o raciocínio do commit. Como o corpo tem várias linhas, os registros são separados por caracteres de controle em vez de quebras de linha.
-- Para cada commit, `git show --numstat` devolve linhas somadas e removidas, arquivos tocados e a contagem por extensão, que vira o mapa de linguagens.
-- `git status --porcelain` marca trabalho não commitado. Um repositório entra no relatório se tiver commits ou mudanças pendentes.
-- Dá para filtrar commits por e-mail de autor. As chamadas ao git saem sem abrir janela de console, detalhe que importa num app de bandeja.
+- O app roda `git log --no-merges` entre 00:00 e 23:59 do dia local, usando a data de commit para casar com o filtro de janela.
+- Ele pede o corpo completo da mensagem (`%B`), porque é nele que vive o raciocínio do commit. Como o corpo tem várias linhas, os registros são separados por caracteres de controle em vez de quebras de linha.
+- Para cada commit, o `git show --numstat` devolve as linhas somadas e removidas, os arquivos tocados e a contagem por extensão, que vira o mapa de linguagens.
+- O `git status --porcelain` marca o trabalho não commitado. Um repositório entra no relatório se tiver commits ou mudanças pendentes.
+- Também dá para filtrar os commits por e-mail de autor. As chamadas ao git saem sem abrir janela de console, um detalhe que importa num app de bandeja.
 
 #### Atividade do GitHub
 
-- Lista `/user/repos` ordenado por `pushed_at` e para de paginar quando passa da fronteira do dia, calculada em horário local e convertida para UTC.
-- Por repositório ativo, busca commits do seu usuário no intervalo do dia, com o link de cada um.
-- Três buscas em `/search/issues` trazem PRs criadas, PRs mescladas e issues criadas no dia, anexadas ao repositório certo.
-- Em rate limit, respeita `Retry-After` ou `X-RateLimit-Reset` e dorme no máximo 120 segundos antes de tentar de novo. Falhas por repositório viram avisos no relatório, sem derrubar a coleta.
+- O app lista `/user/repos` ordenado por `pushed_at` e para de paginar quando passa da fronteira do dia, calculada em horário local e convertida para UTC.
+- Para cada repositório ativo, ele busca os commits do seu usuário no intervalo do dia, com o link de cada um.
+- Três buscas em `/search/issues` trazem as PRs criadas, as PRs mescladas e as issues criadas no dia, e cada uma é anexada ao repositório certo.
+- Em rate limit, ele respeita o `Retry-After` ou o `X-RateLimit-Reset` e dorme no máximo 120 segundos antes de tentar de novo. As falhas por repositório viram avisos no relatório, sem derrubar a coleta.
 
 <p align="center"><img src="./assets/screens/config-github.png" alt="Configurações do GitHub: usuário, token e opção de incluir repositórios privados." width="92%"><br><sub>Configurações do GitHub: usuário, token e opção de incluir repositórios privados.</sub></p>
 
@@ -87,16 +87,16 @@ Esta etapa lê o relatório preliminar e devolve um objeto com resumo, tecnologi
 
 #### Mídia e fotos
 
-- Fotos do projeto: varre os repositórios locais atrás de imagens, ignora pastas de build e dependências e arquivos abaixo de 5 KB (exceto SVG). Pontua por nome (`screenshot`, `banner`, `hero`, `demo`), por pasta (`docs`, `assets`, `public`), por casamento com as palavras-chave e por recência.
-- Banco de fotos: Pexels ou Unsplash, com busca pelas palavras-chave, download local e a atribuição ao fotógrafo guardada junto. No Unsplash, o endpoint de download é acionado como a diretriz pede.
-- A ordem de preferência é a imagem real do projeto, depois o banco de imagens.
+- Para as fotos do projeto, o app varre os repositórios locais atrás de imagens e ignora pastas de build e dependências e arquivos abaixo de 5 KB (exceto SVG). Ele pontua por nome (`screenshot`, `banner`, `hero`, `demo`), por pasta (`docs`, `assets`, `public`), por casamento com as palavras-chave e por recência.
+- O banco de fotos pode ser o Pexels ou o Unsplash. O app busca pelas palavras-chave, baixa a imagem para a máquina e guarda junto a atribuição ao fotógrafo. No Unsplash, o endpoint de download é acionado como a diretriz pede.
+- A ordem de preferência é a imagem real do projeto e, depois, o banco de imagens.
 
 <p align="center"><img src="./assets/screens/fotos-sugeridas.png" alt="Fotos sugeridas, com a origem de cada uma (projeto ou banco de imagens)." width="92%"><br><sub>Fotos sugeridas, com a origem de cada uma (projeto ou banco de imagens).</sub></p>
 
 #### Janela, bandeja e agendador
 
 - A janela tem três áreas: Hoje (post e foto lado a lado, resumo, números e detalhe por repositório), Histórico e Configurações.
-- Em Hoje, os repositórios do dia viram chips: marque os que entram, escolha o tamanho do texto e regenere sem recoletar commits.
+- Em Hoje, os repositórios do dia viram chips. Você marca os que entram, escolhe o tamanho do texto e regenera sem recoletar commits.
 - Fechar a janela só a esconde. O menu da bandeja abre o app, gera o recap, abre as configurações, liga o autostart e encerra.
 - O tema claro ou escuro lembra a sua escolha e, sem ela, segue o sistema.
 
@@ -106,14 +106,14 @@ Esta etapa lê o relatório preliminar e devolve um objeto com resumo, tecnologi
 
 ### Arquitetura
 
-- `app.py`: o controlador. Junta janela, bandeja e agendador, e expõe a API ao JavaScript.
-- `pipeline.py`: o fluxo coleta, agregação, IA, fotos e gravação.
-- `analyzers/`: git local, cliente do GitHub e agregador.
-- `ai/`: a ponte com o Claude Code.
-- `media/`: fotos do projeto e do banco de imagens.
-- `scheduler/`: o agendamento diário com APScheduler.
-- `ui/`: ícone da bandeja, ponte do webview e frontend em `web/`.
-- `core/`: modelos, configuração, caminhos, armazenamento, autostart e área de transferência.
+- O `app.py` é o controlador. Ele junta janela, bandeja e agendador, e expõe a API ao JavaScript.
+- O `pipeline.py` guarda o fluxo de coleta, agregação, IA, fotos e gravação.
+- A pasta `analyzers/` reúne o git local, o cliente do GitHub e o agregador.
+- A pasta `ai/` tem a ponte com o Claude Code.
+- A pasta `media/` cuida das fotos do projeto e do banco de imagens.
+- A pasta `scheduler/` faz o agendamento diário com APScheduler.
+- A pasta `ui/` tem o ícone da bandeja, a ponte do webview e o frontend em `web/`.
+- A pasta `core/` reúne modelos, configuração, caminhos, armazenamento, autostart e área de transferência.
 
 ```mermaid
 flowchart LR
@@ -128,7 +128,7 @@ flowchart LR
     ST --> DISK[(APPDATA DevRecap)]
 ```
 
-Onde ficam os dados, tudo em `%APPDATA%\DevRecap`: `config.json` com ajustes e chaves, `reports/AAAA-MM-DD/` com `report.json` (fonte da verdade) e `report.md`, `media/` com imagens baixadas e `logs/devrecap.log`.
+Os dados ficam todos em `%APPDATA%\DevRecap`: `config.json` com ajustes e chaves, `reports/AAAA-MM-DD/` com `report.json` (fonte da verdade) e `report.md`, `media/` com imagens baixadas e `logs/devrecap.log`.
 
 ### Decisões de engenharia
 
@@ -148,12 +148,12 @@ Onde ficam os dados, tudo em `%APPDATA%\DevRecap`: `config.json` com ajustes e c
 
 ### Limites conhecidos
 
-- Só Windows 10 ou 11, com Python 3.11 ou mais novo, WebView2 e git no PATH.
+- O app roda só no Windows 10 ou 11, com Python 3.11 ou mais novo, WebView2 e git no PATH.
 - A análise depende do CLI do Claude Code e de um arquivo de instrução do projeto; sem eles o app lista a atividade, mas não gera resumo nem post.
 - A análise leva minutos e tem teto de 15 minutos.
 - No Unsplash, o modo demo permite 50 requisições por hora. O Pexels dá a chave na hora.
 - Repositórios privados no GitHub exigem token com escopo `repo` (ou Contents: Read, no fine-grained).
-- Pexels e Unsplash exigem crédito ao fotógrafo; o post deve incluí-lo ao usar foto de banco.
+- Pexels e Unsplash exigem crédito ao fotógrafo, então o post deve incluí-lo ao usar foto de banco.
 - O README sugere excluir a pasta `.venv` da sincronização do OneDrive.
 
 ### Requisitos e instalação

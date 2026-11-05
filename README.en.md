@@ -87,16 +87,16 @@ This step reads the preliminary report and returns an object with summary, techn
 
 #### Media and photos
 
-- Project photos: it scans local repositories for images, ignores build and dependency folders and files under 5 KB (except SVG). It scores by name (`screenshot`, `banner`, `hero`, `demo`), by folder (`docs`, `assets`, `public`), by match with the keywords and by recency.
-- Photo bank: Pexels or Unsplash, searching by the keywords, downloading locally and keeping the photographer attribution alongside. On Unsplash, the download endpoint is triggered as the guidelines ask.
-- The order of preference is a real image from the project, then the photo bank.
+- For project photos, the app scans local repositories for images and ignores build and dependency folders and files under 5 KB (except SVG). It scores by name (`screenshot`, `banner`, `hero`, `demo`), by folder (`docs`, `assets`, `public`), by match with the keywords and by recency.
+- The photo bank can be Pexels or Unsplash. The app searches by the keywords, downloads the image locally and keeps the photographer attribution alongside. On Unsplash, it triggers the download endpoint as the guidelines ask.
+- The order of preference is a real image from the project and, after that, the photo bank.
 
 <p align="center"><img src="./assets/screens/fotos-sugeridas.png" alt="Suggested photos, with the source of each one (project or stock library)." width="92%"><br><sub>Suggested photos, with the source of each one (project or stock library).</sub></p>
 
 #### Window, tray and scheduler
 
 - The window has three areas: Today (post and photo side by side, summary, numbers and per-repository detail), History and Settings.
-- In Today, the day's repositories become chips: tick the ones that count, pick the text size and regenerate without recollecting commits.
+- In Today, the day's repositories become chips. You tick the ones that count, pick the text size and regenerate without recollecting commits.
 - Closing the window only hides it. The tray menu opens the app, generates the recap, opens settings, toggles autostart and quits.
 - The light or dark theme remembers your choice and, without one, follows the system.
 
@@ -106,14 +106,14 @@ This step reads the preliminary report and returns an object with summary, techn
 
 ### Architecture
 
-- `app.py`: the controller. It joins window, tray and scheduler, and exposes the API to JavaScript.
-- `pipeline.py`: the flow of collection, aggregation, AI, photos and saving.
-- `analyzers/`: local git, GitHub client and aggregator.
-- `ai/`: the bridge to Claude Code.
-- `media/`: project photos and the photo bank.
-- `scheduler/`: the daily schedule with APScheduler.
-- `ui/`: tray icon, webview bridge and the frontend in `web/`.
-- `core/`: models, settings, paths, storage, autostart and clipboard.
+- `app.py` is the controller. It joins window, tray and scheduler, and exposes the API to JavaScript.
+- `pipeline.py` holds the flow of collection, aggregation, AI, photos and saving.
+- The `analyzers/` folder groups the local git, the GitHub client and the aggregator.
+- The `ai/` folder has the bridge to Claude Code.
+- The `media/` folder handles project photos and the photo bank.
+- The `scheduler/` folder runs the daily schedule with APScheduler.
+- The `ui/` folder has the tray icon, the webview bridge and the frontend in `web/`.
+- The `core/` folder groups models, settings, paths, storage, autostart and clipboard.
 
 ```mermaid
 flowchart LR
@@ -128,7 +128,7 @@ flowchart LR
     ST --> DISK[(APPDATA DevRecap)]
 ```
 
-Where the data lives, all under `%APPDATA%\DevRecap`: `config.json` with settings and keys, `reports/YYYY-MM-DD/` with `report.json` (source of truth) and `report.md`, `media/` with downloaded images and `logs/devrecap.log`.
+The data all lives under `%APPDATA%\DevRecap`: `config.json` with settings and keys, `reports/YYYY-MM-DD/` with `report.json` (source of truth) and `report.md`, `media/` with downloaded images and `logs/devrecap.log`.
 
 ### Engineering decisions
 
@@ -148,12 +148,12 @@ Where the data lives, all under `%APPDATA%\DevRecap`: `config.json` with setting
 
 ### Known limits
 
-- Windows 10 or 11 only, with Python 3.11 or newer, WebView2 and git on PATH.
+- The app runs only on Windows 10 or 11, with Python 3.11 or newer, WebView2 and git on PATH.
 - The analysis depends on the Claude Code CLI and on an instruction file from the author's project; without them the app lists the activity but produces no summary or post.
 - The analysis takes minutes and has a 15-minute ceiling.
 - On Unsplash, demo mode allows 50 requests per hour. Pexels gives the key instantly.
 - Private GitHub repositories need a token with the `repo` scope (or Contents: Read, on fine-grained tokens).
-- Pexels and Unsplash require crediting the photographer; the post should include it when using a bank photo.
+- Pexels and Unsplash require crediting the photographer, so the post should include it when using a bank photo.
 - The README suggests excluding the `.venv` folder from OneDrive sync.
 
 ### Requirements and installation
