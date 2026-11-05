@@ -18,7 +18,7 @@
 
 ### Visão geral
 
-O DevRecap é um app de bandeja do Windows, escrito em Python, que fecha o seu dia de desenvolvimento sozinho. Todo dia às 18:00 ele lê os commits das suas pastas locais pelo git e a atividade do GitHub pela API REST, junta as duas fontes e produz um relatório: a lista do que foi feito, um resumo com tecnologias e progresso, uma ideia de post para o LinkedIn e sugestões de foto. A interface é HTML e CSS dentro de uma janela WebView2, com tema claro e escuro. Os dados ficam em `%APPDATA%\DevRecap`, o autostart não pede administrador e o app vira um `.exe` com PyInstaller.
+O DevRecap é um app de bandeja do Windows, escrito em Python, que fecha o seu dia de desenvolvimento sozinho. Todo dia às 18:00 ele lê os commits das suas pastas locais pelo git e a atividade do GitHub pela API REST, junta as duas fontes e já produz um relatório: a lista do que foi feito, um resumo com tecnologias e progresso, uma ideia de post para o LinkedIn e sugestões de foto. A interface é HTML e CSS dentro de uma janela WebView2, com tema claro e escuro. Os dados ficam em `%APPDATA%\DevRecap`, o autostart não pede administrador e o app vira um `.exe` com PyInstaller.
 
 ### Como funciona
 

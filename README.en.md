@@ -18,7 +18,7 @@
 
 ### Overview
 
-DevRecap is a Windows tray app written in Python that wraps up your development day on its own. Every day at 18:00 it reads the commits from your local folders through git and your GitHub activity through the REST API, merges both sources and produces a report: the list of what was done, a summary with technologies and progress, a LinkedIn post idea and photo suggestions. The interface is HTML and CSS inside a WebView2 window, with light and dark themes. Data lives in `%APPDATA%\DevRecap`, autostart needs no administrator rights and the app ships as an `.exe` built with PyInstaller.
+DevRecap is a Windows tray app written in Python that wraps up your development day on its own. Every day at 18:00 it reads the commits from your local folders through git and your GitHub activity through the REST API, merges both sources and puts together a report: the list of what was done, a summary with technologies and progress, a LinkedIn post idea and photo suggestions. The interface is HTML and CSS inside a WebView2 window, with light and dark themes. Data lives in `%APPDATA%\DevRecap`, autostart doesn't need administrator rights and the app ships as an `.exe` built with PyInstaller.
 
 ### How it works
 
