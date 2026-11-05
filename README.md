@@ -53,6 +53,8 @@ flowchart TD
 
 Cada pasta marcada é varrida até uma profundidade configurável (padrão 3), sem descer dentro de um repositório já encontrado e pulando `node_modules`, `dist`, `build`, ambientes virtuais e similares.
 
+<p align="center"><img src="./assets/screens/config-pastas.png" alt="Configurações: pastas varridas, profundidade da busca e filtro por e-mail de autor." width="92%"><br><sub>Configurações: pastas varridas, profundidade da busca e filtro por e-mail de autor.</sub></p>
+
 - Roda `git log --no-merges` entre 00:00 e 23:59 do dia local, usando a data de commit para casar com o filtro de janela.
 - Pede o corpo completo da mensagem (`%B`), porque é nele que vive o raciocínio do commit. Como o corpo tem várias linhas, os registros são separados por caracteres de controle em vez de quebras de linha.
 - Para cada commit, `git show --numstat` devolve linhas somadas e removidas, arquivos tocados e a contagem por extensão, que vira o mapa de linguagens.
@@ -66,13 +68,19 @@ Cada pasta marcada é varrida até uma profundidade configurável (padrão 3), s
 - Três buscas em `/search/issues` trazem PRs criadas, PRs mescladas e issues criadas no dia, anexadas ao repositório certo.
 - Em rate limit, respeita `Retry-After` ou `X-RateLimit-Reset` e dorme no máximo 120 segundos antes de tentar de novo. Falhas por repositório viram avisos no relatório, sem derrubar a coleta.
 
+<p align="center"><img src="./assets/screens/config-github.png" alt="Configurações do GitHub: usuário, token e opção de incluir repositórios privados." width="92%"><br><sub>Configurações do GitHub: usuário, token e opção de incluir repositórios privados.</sub></p>
+
 #### Agregação
 
 O agregador casa cada repositório local com o seu par do GitHub pelo `remote_url` normalizado (sem esquema, sem `.git`) e, na falta dele, pelo nome. No par, une commits sem duplicar por SHA, une PRs e issues, soma estatísticas e marca a origem como "both". O estado de árvore suja vem do local.
 
+<p align="center"><img src="./assets/screens/por-repositorio.png" alt="Detalhe por repositório: commits, PR e issue unidos, com linhas somadas e removidas." width="92%"><br><sub>Detalhe por repositório: commits, PR e issue unidos, com linhas somadas e removidas.</sub></p>
+
 #### Análise de IA e post
 
 Esta etapa lê o relatório preliminar e devolve um objeto com resumo, tecnologias, progresso, valor agregado, destaques, post, hashtags e palavras-chave de foto.
+
+<p align="center"><img src="./assets/screens/post-e-foto.png" alt="Post de LinkedIn gerado, com hashtags, ao lado das fotos sugeridas." width="92%"><br><sub>Post de LinkedIn gerado, com hashtags, ao lado das fotos sugeridas.</sub></p>
 
 - Em vez de uma chamada de API, a etapa executa o Claude Code em modo headless (`claude -p`), com o prompt enviado por stdin. O agente consegue ler arquivos e abrir commits, coisa que um prompt único não comporta.
 - Roda com `acceptEdits` e diretórios extras liberados por `--add-dir`, o escopo mínimo para gravar o resultado sem alguém para aprovar.
@@ -85,12 +93,18 @@ Esta etapa lê o relatório preliminar e devolve um objeto com resumo, tecnologi
 - Banco de fotos: Pexels ou Unsplash, com busca pelas palavras-chave, download local e a atribuição ao fotógrafo guardada junto. No Unsplash, o endpoint de download é acionado como a diretriz pede.
 - A ordem de preferência é a imagem real do projeto, depois o banco de imagens.
 
+<p align="center"><img src="./assets/screens/fotos-sugeridas.png" alt="Fotos sugeridas, com a origem de cada uma (projeto ou banco de imagens)." width="92%"><br><sub>Fotos sugeridas, com a origem de cada uma (projeto ou banco de imagens).</sub></p>
+
 #### Janela, bandeja e agendador
 
 - A janela tem três áreas: Hoje (post e foto lado a lado, resumo, números e detalhe por repositório), Histórico e Configurações.
 - Em Hoje, os repositórios do dia viram chips: marque os que entram, escolha o tamanho do texto e regenere sem recoletar commits.
 - Fechar a janela só a esconde. O menu da bandeja abre o app, gera o recap, abre as configurações, liga o autostart e encerra.
 - O tema claro ou escuro lembra a sua escolha e, sem ela, segue o sistema.
+
+<p align="center"><img src="./assets/screens/config-agendamento.png" alt="Configurações de agendamento: horário diário, fins de semana, início com o Windows e notificações." width="92%"><br><sub>Configurações de agendamento: horário diário, fins de semana, início com o Windows e notificações.</sub></p>
+
+<p align="center"><img src="./assets/screens/hoje-escuro.png" alt="Aba Hoje no tema escuro: foco por repositório, post e foto lado a lado, resumo." width="92%"><br><sub>Aba Hoje no tema escuro: foco por repositório, post e foto lado a lado, resumo.</sub></p>
 
 ### Arquitetura
 
@@ -200,6 +214,8 @@ flowchart TD
 
 Each marked folder is scanned down to a configurable depth (default 3), never descending into a repository already found and skipping `node_modules`, `dist`, `build`, virtual environments and similar.
 
+<p align="center"><img src="./assets/screens/config-pastas.png" alt="Settings: scanned folders, search depth and author email filter." width="92%"><br><sub>Settings: scanned folders, search depth and author email filter.</sub></p>
+
 - It runs `git log --no-merges` between 00:00 and 23:59 of the local day, using the commit date so it matches the window filter.
 - It asks for the full message body (`%B`), because that is where the reasoning of a commit lives. Since the body spans several lines, records are separated by control characters instead of line breaks.
 - For each commit, `git show --numstat` returns added and removed lines, touched files and the count per extension, which becomes the language map.
@@ -213,13 +229,19 @@ Each marked folder is scanned down to a configurable depth (default 3), never de
 - Three `/search/issues` queries bring PRs created, PRs merged and issues created that day, attached to the right repository.
 - On a rate limit, it honors `Retry-After` or `X-RateLimit-Reset` and sleeps at most 120 seconds before trying again. Per-repository failures become warnings in the report without stopping the collection.
 
+<p align="center"><img src="./assets/screens/config-github.png" alt="GitHub settings: username, token and the option to include private repositories." width="92%"><br><sub>GitHub settings: username, token and the option to include private repositories.</sub></p>
+
 #### Aggregation
 
 The aggregator matches each local repository with its GitHub counterpart by normalized `remote_url` (no scheme, no `.git`) and, failing that, by name. For a pair it merges commits without duplicating by SHA, merges PRs and issues, sums the stats and marks the source as "both". The dirty-tree state comes from the local side.
 
+<p align="center"><img src="./assets/screens/por-repositorio.png" alt="Per-repository detail: commits, PR and issue merged, with lines added and removed." width="92%"><br><sub>Per-repository detail: commits, PR and issue merged, with lines added and removed.</sub></p>
+
 #### AI analysis and post
 
 This step reads the preliminary report and returns an object with summary, technologies, progress, added value, highlights, post, hashtags and photo keywords.
+
+<p align="center"><img src="./assets/screens/post-e-foto.png" alt="Generated LinkedIn post with hashtags, next to the suggested photos." width="92%"><br><sub>Generated LinkedIn post with hashtags, next to the suggested photos.</sub></p>
 
 - Instead of an API call, the step runs Claude Code in headless mode (`claude -p`), with the prompt sent over stdin. The agent can read files and open commits, which a single prompt cannot hold.
 - It runs with `acceptEdits` and extra directories granted through `--add-dir`, the minimum scope to write the result with nobody around to approve.
@@ -232,12 +254,18 @@ This step reads the preliminary report and returns an object with summary, techn
 - Photo bank: Pexels or Unsplash, searching by the keywords, downloading locally and keeping the photographer attribution alongside. On Unsplash, the download endpoint is triggered as the guidelines ask.
 - The order of preference is a real image from the project, then the photo bank.
 
+<p align="center"><img src="./assets/screens/fotos-sugeridas.png" alt="Suggested photos, with the source of each one (project or stock library)." width="92%"><br><sub>Suggested photos, with the source of each one (project or stock library).</sub></p>
+
 #### Window, tray and scheduler
 
 - The window has three areas: Today (post and photo side by side, summary, numbers and per-repository detail), History and Settings.
 - In Today, the day's repositories become chips: tick the ones that count, pick the text size and regenerate without recollecting commits.
 - Closing the window only hides it. The tray menu opens the app, generates the recap, opens settings, toggles autostart and quits.
 - The light or dark theme remembers your choice and, without one, follows the system.
+
+<p align="center"><img src="./assets/screens/config-agendamento.png" alt="Scheduling settings: daily time, weekends, start with Windows and notifications." width="92%"><br><sub>Scheduling settings: daily time, weekends, start with Windows and notifications.</sub></p>
+
+<p align="center"><img src="./assets/screens/hoje-escuro.png" alt="Today tab in the dark theme: per-repository focus, post and photo side by side, summary." width="92%"><br><sub>Today tab in the dark theme: per-repository focus, post and photo side by side, summary.</sub></p>
 
 ### Architecture
 
