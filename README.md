@@ -3,7 +3,7 @@
 <p align="center">App de bandeja do Windows que resume o seu dia de código e prepara um post a partir disso.<br><sub><i>Windows tray app that summarizes your coding day and drafts a post from it.</i></sub></p>
 
 <p align="center">
-  <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/python.svg" height="15" alt=""> Python</kbd> <kbd>PyInstaller</kbd> <kbd>APScheduler</kbd> <kbd>WebView2</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/googlegemini.svg" height="15" alt=""> Gemini API</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/github.svg" height="15" alt=""> GitHub API</kbd>
+  <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/python.svg" height="18" alt=""> Python</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/pyinstaller.svg" height="18" alt=""> PyInstaller</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/apscheduler.svg" height="18" alt=""> APScheduler</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/webview2.svg" height="18" alt=""> WebView2</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/gemini.svg" height="18" alt=""> Gemini API</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/github.svg" height="18" alt=""> GitHub API</kbd>
 </p>
 
 ## Português
