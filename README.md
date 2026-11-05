@@ -1,9 +1,11 @@
+<p align="center"><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/projects/v1/devrecap.png" width="96" alt="Ícone do projeto"></p>
+
 <h1 align="center">DevRecap</h1>
 
 <p align="center">App de bandeja do Windows que resume o seu dia de código e prepara um post a partir disso.<br><sub><i>Windows tray app that summarizes your coding day and drafts a post from it.</i></sub></p>
 
 <p align="center">
-  <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/python.svg" height="18" alt=""> Python</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/pyinstaller.svg" height="18" alt=""> PyInstaller</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/apscheduler.svg" height="18" alt=""> APScheduler</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/webview2.svg" height="18" alt=""> WebView2</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/gemini.svg" height="18" alt=""> Gemini API</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/github.svg" height="18" alt=""> GitHub API</kbd>
+  <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/python.svg" height="18" align="absmiddle" alt=""> Python</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/pyinstaller.svg" height="18" align="absmiddle" alt=""> PyInstaller</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/apscheduler.svg" height="18" align="absmiddle" alt=""> APScheduler</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/webview2.svg" height="18" align="absmiddle" alt=""> WebView2</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/gemini.svg" height="18" align="absmiddle" alt=""> Gemini API</kbd> <kbd><img src="https://raw.githubusercontent.com/Joaopecouto/Joaopecouto/main/assets/icons/v2/github.svg" height="18" align="absmiddle" alt=""> GitHub API</kbd>
 </p>
 
 ## Português
